@@ -14,8 +14,6 @@ public class RecoverTree extends LC0_Algorithm {
 
 
 
-
-
     @Override
     public Object clone() {
         return new RecoverTree();
@@ -65,9 +63,6 @@ public class RecoverTree extends LC0_Algorithm {
                 this.setNeighborProperty("count", currentCounter + neighborCounter);
             }
         }
-
-
-
         this.putProperty("Affichage", this.displayNeighborStateList(this.neighbors_state, this.counter), SimulationConstants.PropertyStatus.DISPLAYED);
     }
 
