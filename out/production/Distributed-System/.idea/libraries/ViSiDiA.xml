@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="ViSiDiA">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../Syst_dist/ViSiDiA.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
