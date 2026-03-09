@@ -14,7 +14,7 @@ public class RecoverTreeLC2 extends LC2_Algorithm {
 
     @Override
     public String getDescription() {
-        return "Recover Tree using closed star algorithm.";
+        return "Recover Tree using closed star algorithm 1.3";
     }
 
     @Override
@@ -41,7 +41,10 @@ public class RecoverTreeLC2 extends LC2_Algorithm {
                 }
             }
             else if (this.getLocalProperty("label").equals("A")){
-                for (Integer node : activesNodes) {
+                if(activesNodes.size() == 1 || activesNodes.isEmpty()){
+                    localTermination();
+                }
+                else for (Integer node : activesNodes) {
                     if(this.getNeighborProperty(node, "label").equals("N")){
                         this.setNeighborProperty(node, "label", "A");
                         this.setDoorState(new MarkedState(true), node);
@@ -50,6 +53,7 @@ public class RecoverTreeLC2 extends LC2_Algorithm {
                         setLocalProperty("count", count+1);
                     }
                 }
+
             }
         }
     }
