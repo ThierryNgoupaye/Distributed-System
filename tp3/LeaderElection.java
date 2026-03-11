@@ -35,6 +35,8 @@ public class LeaderElection extends LC0_Algorithm {
     @Override
     protected void beforeStart() {
         this.setLocalProperty(LABEL_KEY, vertex.getLabel());
+        // Cette proprieté permet de compter le nombre de voisins d'un noeud, et mettre à jour ce nombre après
+        // l'élagage.
         this.setLocalProperty(NEIGHBORS_KEY, vertex.getDegree());
         this.neighborsList = new String[vertex.getDegree()];
         Arrays.fill(this.neighborsList, "N");
@@ -43,6 +45,7 @@ public class LeaderElection extends LC0_Algorithm {
 
     @Override
     protected void onStarCenter() {
+        this.neighborsList[neighborDoor] =  this.getNeighborProperty("label").toString();
         int neighborDegree = (int) this.getNeighborProperty(NEIGHBORS_KEY);
         int currentDegree = (int) this.getLocalProperty(NEIGHBORS_KEY);
         if(currentDegree == 1 && neighborDegree >1) {
@@ -57,8 +60,6 @@ public class LeaderElection extends LC0_Algorithm {
             this.setLocalProperty(NEIGHBORS_KEY, 0);
             this.setNeighborProperty(NEIGHBORS_KEY, 0);
         }
-        this.neighborsList[neighborDoor] =  this.getNeighborProperty("label").toString();
-
         putProperty("affichage", this.displayNeighborStateList(), SimulationConstants.PropertyStatus.DISPLAYED);
     }
 

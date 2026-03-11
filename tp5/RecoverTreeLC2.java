@@ -14,7 +14,7 @@ public class RecoverTreeLC2 extends LC2_Algorithm {
 
     @Override
     public String getDescription() {
-        return "Recover Tree using closed star algorithm 1.3";
+        return "Recover Tree using closed star algorithm 1.5";
     }
 
     @Override
@@ -31,6 +31,7 @@ public class RecoverTreeLC2 extends LC2_Algorithm {
             localTermination();
         }
         else {
+            this.setLocalProperty("count", 0);
             if(this.getLocalProperty("label").equals("N")){
                 for (Integer node : activesNodes) {
                     if(this.getNeighborProperty(node, "label").equals("A")){
@@ -41,16 +42,20 @@ public class RecoverTreeLC2 extends LC2_Algorithm {
                 }
             }
             else if (this.getLocalProperty("label").equals("A")){
-                if(activesNodes.size() == 1 || activesNodes.isEmpty()){
+                if(activesNodes.isEmpty()){
                     localTermination();
                 }
                 else for (Integer node : activesNodes) {
-                    if(this.getNeighborProperty(node, "label").equals("N")){
+                    if(this.getNeighborProperty(node, "label").equals("N") || (activesNodes.size() == 1 && this.getNeighborProperty(node, "label").equals("N"))){
                         this.setNeighborProperty(node, "label", "A");
                         this.setDoorState(new MarkedState(true), node);
                     }
+                    else if(activesNodes.size() == 1){
+                        localTermination();
+                    }
                     else if (this.getNeighborProperty(node, "label").equals("A")){
-                        setLocalProperty("count", count+1);
+                        count = count +1;
+                        setLocalProperty("count", count);
                     }
                 }
 
