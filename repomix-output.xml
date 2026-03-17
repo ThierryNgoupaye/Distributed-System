@@ -1,0 +1,1535 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+td1/
+  SpanningTree.java
+tp1/
+  SharedInformation.java
+tp2/
+  DepthFirstSearchLC0.java
+tp2025/
+  ClientServer.java
+tp3/
+  LeaderElection.java
+tp4/
+  LeaderElectionLC1.java
+  SpanningTreeLC1.java
+tp5/
+  LeaderElectionLC2.java
+  SpanningTreeLC2.java
+tp6/
+  LocalTerminationDetector.java
+  SyncNeighbor.java
+.gitignore
+graphe_cycles.gml
+LICENSE
+Main.java
+README.md
+recover_tree.gml
+test_Graph.gml
+tp2025_graph.gml
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="tp2/DepthFirstSearchLC0.java">
+package tp2;
+
+import visidia.simulation.SimulationConstants;
+import visidia.simulation.process.algorithm.LC0_Algorithm;
+import visidia.simulation.process.edgestate.MarkedState;
+
+import java.util.Arrays;
+
+public class DepthFirstSearchLC0 extends LC0_Algorithm {
+
+    private int fatherDoor;
+    private String[] neighbors_state;
+    private int counter;
+
+
+
+    @Override
+    public Object clone() {
+        return new DepthFirstSearchLC0();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Calcul d'un arbre recouvrant 1.2";
+    }
+
+
+    @Override
+    protected void beforeStart() {
+        this.counter = 1;
+        this.fatherDoor = -1;
+        this.setLocalProperty("label", vertex.getLabel());
+        this.setLocalProperty("count", counter);
+        this.neighbors_state = new String[vertex.getDegree()];
+        Arrays.fill(neighbors_state, "N");
+    }
+
+
+    @Override
+    protected void onStarCenter() {
+        this.counter = (int) getLocalProperty("count");
+        this.neighbors_state[neighborDoor] = (String) this.getNeighborProperty("label");
+        if(this.getLocalProperty("label").equals("N") && this.getNeighborProperty("label").equals("A")){
+            this.setLocalProperty("label", "A");
+            this.setNeighborProperty("label", "M");
+            this.setDoorState(new MarkedState(true), neighborDoor);
+            this.fatherDoor = neighborDoor;
+        }
+
+        else if(fatherDoor == neighborDoor && this.getLocalProperty("label").equals("A") && this.getNeighborProperty("label").equals("M")){
+            boolean canApply = true;
+            for(String state: neighbors_state){
+                if(state.equals("N")){
+                    canApply = false;
+                    break;
+                }
+            }
+            if(canApply){
+                this.setLocalProperty("label", "F");
+                this.setNeighborProperty("label", "A");
+                int currentCounter = (int)getLocalProperty("count");
+                int neighborCounter = (int)getNeighborProperty("count");
+                this.setNeighborProperty("count", currentCounter + neighborCounter);
+            }
+        }
+        this.putProperty("Affichage", this.displayNeighborStateList(this.neighbors_state, this.counter), SimulationConstants.PropertyStatus.DISPLAYED);
+    }
+
+
+    private String displayNeighborStateList(String[] list, int counter){
+        StringBuilder sb = new StringBuilder("Voisins: ");
+        for (String j : list) {
+            sb.append(j);
+        }
+        sb.append(" ").append("Order: ").append(counter);
+        return sb.toString();
+    }
+}
+</file>
+
+<file path="tp4/SpanningTreeLC1.java">
+package tp4;
+
+import visidia.simulation.process.algorithm.LC1_Algorithm;
+import visidia.simulation.process.edgestate.MarkedState;
+
+import java.util.ArrayList;
+
+public class SpanningTreeLC1 extends LC1_Algorithm {
+
+    @Override
+    public Object clone() {
+        return new SpanningTreeLC1();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Recover Tree using open star algorithm.";
+    }
+
+    @Override
+    protected void beforeStart() {
+        this.setLocalProperty("label", vertex.getLabel());
+    }
+
+    @Override
+    protected void onStarCenter() {
+        ArrayList<Integer> connectedNodes = this.getActiveDoors();
+        if(this.getLocalProperty("label").equals("N")){
+            for(Integer node : connectedNodes) {
+                if(this.getNeighborProperty(node, "label").equals("A")){
+                    setDoorState(new MarkedState(true), node);
+                    this.setLocalProperty("label", "A");
+                    break;
+                }
+            }
+        }
+    }
+}
+</file>
+
+<file path="tp5/SpanningTreeLC2.java">
+package tp5;
+
+import visidia.simulation.process.algorithm.LC2_Algorithm;
+import visidia.simulation.process.edgestate.MarkedState;
+
+import java.util.ArrayList;
+
+public class SpanningTreeLC2 extends LC2_Algorithm {
+
+    @Override
+    public Object clone() {
+        return new SpanningTreeLC2();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Recover Tree using closed star algorithm 1.5";
+    }
+
+    @Override
+    protected void beforeStart() {
+        setLocalProperty("label", vertex.getLabel());
+        setLocalProperty("count", 0);
+    }
+
+    @Override
+    protected void onStarCenter() {
+        int count = (int) this.getLocalProperty("count");
+        ArrayList<Integer> activesNodes = this.getActiveDoors();
+        if(count == activesNodes.size()){
+            localTermination();
+        }
+        else {
+            this.setLocalProperty("count", 0);
+            if(this.getLocalProperty("label").equals("N")){
+                for (Integer node : activesNodes) {
+                    if(this.getNeighborProperty(node, "label").equals("A")){
+                        this.setLocalProperty("label", "A");
+                        this.setDoorState(new MarkedState(true), node);
+                        break;
+                    }
+                }
+            }
+            else if (this.getLocalProperty("label").equals("A")){
+                if(activesNodes.isEmpty()){
+                    localTermination();
+                }
+                else for (Integer node : activesNodes) {
+                    if(this.getNeighborProperty(node, "label").equals("N") || (activesNodes.size() == 1 && this.getNeighborProperty(node, "label").equals("N"))){
+                        this.setNeighborProperty(node, "label", "A");
+                        this.setDoorState(new MarkedState(true), node);
+                    }
+                    else if(activesNodes.size() == 1){
+                        localTermination();
+                    }
+                    else if (this.getNeighborProperty(node, "label").equals("A")){
+                        count = count +1;
+                        setLocalProperty("count", count);
+                    }
+                }
+
+            }
+        }
+    }
+}
+</file>
+
+<file path="tp6/LocalTerminationDetector.java">
+package tp6;
+
+
+
+import visidia.simulation.SimulationConstants;
+import visidia.simulation.process.algorithm.LC1_Algorithm;
+import visidia.simulation.process.edgestate.MarkedState;
+
+public class LocalTerminationDetector extends LC1_Algorithm{
+
+
+    @Override
+    protected void beforeStart() {
+       this.setLocalProperty("label", vertex.getLabel());
+       this.setLocalProperty("p", false);
+       this.setLocalProperty("a", -1);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Terminaison 5.0";
+    }
+
+    @Override
+    protected void onStarCenter() {
+        if (this.getLocalProperty("label").equals("W")){
+            if((int) this.getLocalProperty("a") < 3){
+                int min = (int) this.getLocalProperty("a");
+                for (Integer node : this.getActiveDoors()){
+                    if (min > (int)this.getNeighborProperty(node, "a")) {
+                        min = (int)this.getNeighborProperty(node, "a");
+                    }
+                }
+                this.setLocalProperty("a", min+1);
+            }
+        }
+         else if(this.getLocalProperty("label").equals("N")){
+            for (Integer node: this.getActiveDoors()){
+                if(this.getNeighborProperty(node, "label").equals("A")){
+                    this.setLocalProperty("label", "A");
+                    this.setDoorState(new MarkedState(true), node);
+                    break;
+                }
+            }
+        }
+        else if (this.getLocalProperty("label").equals("A")){
+            int n_count = 0;
+            for (Integer node: this.getActiveDoors()){
+                if(this.getNeighborProperty(node, "label").equals("N")){
+                    n_count++;
+                }
+            }
+            if(n_count == 0 ){
+                this.setLocalProperty("p", true);
+                this.setLocalProperty("a", 0);
+                this.setLocalProperty("label", "W");
+            }
+        }
+        putProperty("affichage", display(), SimulationConstants.PropertyStatus.DISPLAYED);
+    }
+
+    @Override
+    public Object clone() {
+        return new LocalTerminationDetector();
+    }
+
+
+    private String display()
+    {
+        return "a" +
+                "(" +
+                this.getLocalProperty("a") +
+                ")";
+    }
+    
+
+    
+}
+</file>
+
+<file path="tp6/SyncNeighbor.java">
+package tp6;
+
+import visidia.simulation.process.algorithm.SensorSyncAlgorithm;
+import visidia.simulation.process.messages.StringMessage;
+
+public class SyncNeighbor extends SensorSyncAlgorithm {
+
+    @Override
+    public Object clone() {
+        return new SyncNeighbor();
+    }
+
+    @Override
+    public void init() {
+        this.move(this.getId());
+
+        for (int i =0; i<= 10; i++){
+            if(getArity() != 0){
+                this.sendAll(new StringMessage("Hello-WSN"));
+                if(isIncomingDoor(0)) {
+                    setLocalProperty("label", "A");
+                }
+            }
+            else {
+                setLocalProperty("label", "Z");
+            }
+            move(this.getId());
+            try {
+                Thread.sleep(600);
+            } catch (Exception e) {
+              System.out.println(e);
+            }
+        }
+    }
+    
+}
+</file>
+
+<file path="td1/SpanningTree.java">
+package td1;
+
+import visidia.simulation.process.algorithm.LC0_Algorithm;
+import visidia.simulation.process.edgestate.MarkedState;
+
+public class SpanningTree extends LC0_Algorithm {
+
+    @Override
+    public Object clone() {
+        return new SpanningTree();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Spanning tree algorithm using LC0 algorithm \n" + "Rule: A --- N   ----> A---A";
+    }
+
+    @Override
+    protected void beforeStart() {
+        setLocalProperty("label", vertex.getLabel());
+    }
+
+    @Override
+    protected void onStarCenter() {
+        if(getLocalProperty("label").equals("A") && getNeighborProperty("label").equals("N")) {
+            setNeighborProperty("label", "A");
+            setDoorState(new MarkedState(true), neighborDoor);
+        }
+    }
+}
+</file>
+
+<file path="tp1/SharedInformation.java">
+package tp1;
+
+import visidia.simulation.SimulationConstants;
+import visidia.simulation.process.algorithm.LC0_Algorithm;
+import java.util.Arrays;
+
+
+public  class SharedInformation extends LC0_Algorithm {
+
+    private int[] ngh_id;
+
+
+    @Override
+    public Object clone() {
+        return new SharedInformation();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Shared information 1.1";
+    }
+
+    @Override
+    protected void beforeStart() {
+        this.setLocalProperty("id", vertex.getId());
+        this.setLocalProperty("label", vertex.getLabel());
+        this.ngh_id = new int[vertex.degree()];
+        Arrays.fill(this.ngh_id, -1);
+    }
+
+    @Override
+    protected void onStarCenter() {
+        int neighborNumber = vertex.degree();
+        int neighborId = (int)getNeighborProperty("id");
+        this.ngh_id[neighborDoor] = neighborId;
+        int currentId = (int)this.getLocalProperty("id");
+        int count = 0;
+
+        for (int i = 0; i < neighborNumber; i++) {
+            if(this.ngh_id[i] <= currentId) {
+                count++;
+            }
+        }
+
+        if(count >= neighborNumber){
+            this.setLocalProperty("label", "K");
+        }
+        else if(count <= (neighborNumber*0.25) ){
+            this.setLocalProperty("label", "C");
+        }
+        else if(count > neighborNumber*0.25 && count <= neighborNumber*0.5){
+            this.setLocalProperty("label", "M");
+        }
+        else if(count > (neighborNumber*0.5) && count <= neighborNumber*0.75 ){
+            this.setLocalProperty("label", "J");
+        }
+        else if(count > neighborNumber*0.75 ){
+            this.setLocalProperty("label", "A");
+        }
+        this.putProperty("Affichage", this.displayNeighborList(), SimulationConstants.PropertyStatus.DISPLAYED);
+    }
+
+
+    private String displayNeighborList(){
+        StringBuilder sb = new StringBuilder("Voisins: ");
+        for (int j : this.ngh_id) {
+            sb.append(j);
+        }
+        return sb.toString();
+    }
+}
+</file>
+
+<file path="tp2025/ClientServer.java">
+package tp2025;
+
+import visidia.simulation.SimulationConstants;
+import visidia.simulation.process.algorithm.LC0_Algorithm;
+import visidia.simulation.process.edgestate.MarkedState;
+
+import java.util.Arrays;
+
+public class ClientServer extends LC0_Algorithm {
+
+    private int fatherDoor;
+    private String[] neighbors_state;
+    private int counter_server;
+    private int counter_client;
+
+    private final String SERVER_COUNT_PROPERTY = "count_sever";
+    private final String CLIENT_COUNT_PROPERTY = "count_client";
+
+
+    @Override
+    public Object clone() {
+        return new ClientServer();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Calcul d'un arbre recouvrant 1.2";
+    }
+
+
+    @Override
+    protected void beforeStart() {
+        this.fatherDoor = -1;
+        this.neighbors_state = new String[vertex.getDegree()];
+        this.setLocalProperty("label", vertex.getLabel());
+        if (vertex.getId() % 2 == 0) {
+            this.counter_server = 1;
+            this.counter_client = 0;
+        } else {
+            this.counter_server = 0;
+            this.counter_client = 1;
+        }
+        this.setLocalProperty(SERVER_COUNT_PROPERTY, counter_server);
+        this.setLocalProperty(CLIENT_COUNT_PROPERTY, counter_client);
+        Arrays.fill(neighbors_state, "N");
+    }
+
+
+    @Override
+    protected void onStarCenter() {
+        this.counter_server = (int) getLocalProperty(SERVER_COUNT_PROPERTY);
+        this.counter_client = (int) getLocalProperty(CLIENT_COUNT_PROPERTY);
+        this.neighbors_state[neighborDoor] = (String) this.getNeighborProperty("label");
+        if (this.getLocalProperty("label").equals("N") && this.getNeighborProperty("label").equals("A")) {
+            this.setLocalProperty("label", "A");
+            this.setNeighborProperty("label", "M");
+            this.setDoorState(new MarkedState(true), neighborDoor);
+            this.fatherDoor = neighborDoor;
+        } else if (fatherDoor == neighborDoor && this.getLocalProperty("label").equals("A") && this.getNeighborProperty("label").equals("M")) {
+            boolean canApply = true;
+            for (String state : neighbors_state) {
+                if (state.equals("N")) {
+                    canApply = false;
+                    break;
+                }
+            }
+            if (canApply) {
+                this.setLocalProperty("label", "F");
+                this.setNeighborProperty("label", "A");
+                int neighborClientCounter = (int) getNeighborProperty(CLIENT_COUNT_PROPERTY);
+                int neighborServerCounter = (int) getNeighborProperty(SERVER_COUNT_PROPERTY);
+                this.setNeighborProperty(CLIENT_COUNT_PROPERTY, this.counter_client + neighborClientCounter);
+                this.setNeighborProperty(SERVER_COUNT_PROPERTY, this.counter_server + neighborServerCounter);
+            }
+        }
+        this.putProperty("Affichage", this.display(this.counter_client, this.counter_server), SimulationConstants.PropertyStatus.DISPLAYED);
+    }
+
+
+    private String display(int counter_client, int counter_server) {
+        return "S(" + counter_server + ")" + " " + "C(" + counter_client + ")";
+    }
+}
+</file>
+
+<file path="tp4/LeaderElectionLC1.java">
+package tp4;
+
+import visidia.simulation.process.algorithm.LC1_Algorithm;
+
+import java.util.ArrayList;
+
+public  class LeaderElectionLC1 extends LC1_Algorithm {
+
+    /*
+    * Règles d'élection d'un leader utilisant une synchronisation Etoile Ouverte
+    *
+    *  - Si le centre est à l'etat N et n'a que 1 voisin a 'etat N alors ce centre passe à l'etat F
+    *  - Si plutot il n'a aucun voisin N, il passe à l'état E.
+    *
+    * */
+
+    @Override
+    public Object clone() {
+        return new LeaderElectionLC1();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Leader Election using opened start synchronization 1.1";
+    }
+
+    @Override
+    protected void beforeStart() {
+        this.setLocalProperty("label", vertex.getLabel());
+    }
+
+    @Override
+    protected void onStarCenter() {
+        ArrayList<Integer> synchronizedNodes = this.getActiveDoors();
+        if(this.getLocalProperty("label").equals("N")) {
+            int count = 0;
+            for(Integer node : synchronizedNodes) {
+                if(this.getNeighborProperty(node, "label").equals("N")) {
+                    count++;
+                }
+            }
+            if(count ==1){
+                this.setLocalProperty("label", "F");
+            }
+            else if(count ==0){
+                this.setLocalProperty("label", "E");
+            }
+        }
+    }
+
+
+}
+</file>
+
+<file path="tp5/LeaderElectionLC2.java">
+package tp5;
+
+import visidia.simulation.process.algorithm.LC2_Algorithm;
+
+import java.util.ArrayList;
+
+public class LeaderElectionLC2 extends LC2_Algorithm {
+
+
+    private final String LABEL_KEY = "label";
+    private final String NEIGHBORS_NUMBER_KEY = "neighbors";
+
+    @Override
+    public Object clone() {
+        return new LeaderElectionLC2();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Leader Election using closed star algorithm 1.1";
+    }
+
+    @Override
+    protected void beforeStart() {
+        this.setLocalProperty(LABEL_KEY, vertex.getLabel());
+        this.setLocalProperty(NEIGHBORS_NUMBER_KEY, vertex.getDegree());
+
+    }
+
+    @Override
+    protected void onStarCenter() {
+        ArrayList<Integer> activesNodes = this.getActiveDoors();
+        if(this.getLocalProperty(LABEL_KEY).equals("N")){
+            if( (int) this.getLocalProperty(NEIGHBORS_NUMBER_KEY) == 0){
+                this.setLocalProperty(LABEL_KEY, "E" );
+            }
+            else for (Integer node: activesNodes){
+                if(this.getNeighborProperty(node, LABEL_KEY).equals("N")){
+                    if ( (int) this.getNeighborProperty(node, NEIGHBORS_NUMBER_KEY) == 1){
+                        this.setNeighborProperty(node,LABEL_KEY, "F" );
+                        int currentNode = (int)this.getLocalProperty(NEIGHBORS_NUMBER_KEY);
+                        this.setLocalProperty(NEIGHBORS_NUMBER_KEY, currentNode-1);
+                    }
+                }
+            }
+        }
+        else if(this.getLocalProperty(LABEL_KEY).equals("F")){
+            localTermination();
+        }
+        else if(this.getLocalProperty(LABEL_KEY).equals("E")) {
+            localTermination();
+        }
+    }
+}
+</file>
+
+<file path="graphe_cycles.gml">
+graph [
+   comment "Generated by ViSiDiA" 
+   directed 0
+   node [
+      id 0
+      label "N"
+      graphics [
+         x 333
+         y 159
+      ]
+   ]
+   node [
+      id 1
+      label "N"
+      graphics [
+         x 223
+         y 371
+      ]
+   ]
+   node [
+      id 2
+      label "N"
+      graphics [
+         x 547
+         y 452
+      ]
+   ]
+   node [
+      id 3
+      label "N"
+      graphics [
+         x 592
+         y 312
+      ]
+   ]
+   node [
+      id 4
+      label "N"
+      graphics [
+         x 863
+         y 359
+      ]
+   ]
+   node [
+      id 5
+      label "N"
+      graphics [
+         x 847
+         y 593
+      ]
+   ]
+   node [
+      id 6
+      label "N"
+      graphics [
+         x 623
+         y 656
+      ]
+   ]
+   node [
+      id 7
+      label "N"
+      graphics [
+         x 376
+         y 658
+      ]
+   ]
+   node [
+      id 8
+      label "N"
+      graphics [
+         x 230
+         y 552
+      ]
+   ]
+   node [
+      id 13
+      label "N"
+      graphics [
+         x 797
+         y 169
+      ]
+   ]
+   node [
+      id 15
+      label "N"
+      graphics [
+         x 671
+         y 64
+      ]
+   ]
+   node [
+      id 18
+      label "N"
+      graphics [
+         x 594
+         y 172
+      ]
+   ]
+   node [
+      id 21
+      label "N"
+      graphics [
+         x 689
+         y 442
+      ]
+   ]
+   node [
+      id 28
+      label "N"
+      graphics [
+         x 102
+         y 109
+      ]
+   ]
+   node [
+      id 30
+      label "N"
+      graphics [
+         x 91
+         y 449
+      ]
+   ]
+   node [
+      id 32
+      label "N"
+      graphics [
+         x 145
+         y 748
+      ]
+   ]
+   node [
+      id 34
+      label "N"
+      graphics [
+         x 580
+         y 803
+      ]
+   ]
+   edge [
+      source 0
+      target 1
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 2
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 2
+      target 3
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 3
+      target 4
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 4
+      target 5
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 5
+      target 6
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 6
+      target 7
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 7
+      target 8
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 8
+      target 2
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 2
+      target 6
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 2
+      target 0
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 0
+      target 3
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 3
+      target 13
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 13
+      target 4
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 13
+      target 15
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 15
+      target 0
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 0
+      target 18
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 18
+      target 3
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 18
+      target 15
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 3
+      target 21
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 21
+      target 6
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 21
+      target 4
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 21
+      target 5
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 21
+      target 2
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 2
+      target 7
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 8
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 28
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 28
+      target 0
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 28
+      target 30
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 30
+      target 8
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 8
+      target 32
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 32
+      target 7
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 7
+      target 34
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 34
+      target 6
+      label ""
+      weight 1.0
+   ]
+]
+</file>
+
+<file path="LICENSE">
+MIT License
+
+Copyright (c) 2026 Thierry N.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</file>
+
+<file path="Main.java">
+public class Main {
+
+    public static void main(String[] args) {
+        System.out.println("TP systèmes distribués");
+    }
+}
+</file>
+
+<file path="README.md">
+# Distributed-System
+</file>
+
+<file path="recover_tree.gml">
+graph [
+   comment "Generated by ViSiDiA" 
+   directed 0
+   node [
+      id 0
+      label "N"
+      graphics [
+         x 413
+         y 114
+      ]
+   ]
+   node [
+      id 1
+      label "N"
+      graphics [
+         x 634
+         y 275
+      ]
+   ]
+   node [
+      id 2
+      label "N"
+      graphics [
+         x 822
+         y 81
+      ]
+   ]
+   node [
+      id 3
+      label "N"
+      graphics [
+         x 426
+         y 437
+      ]
+   ]
+   node [
+      id 4
+      label "N"
+      graphics [
+         x 641
+         y 485
+      ]
+   ]
+   node [
+      id 5
+      label "N"
+      graphics [
+         x 861
+         y 329
+      ]
+   ]
+   node [
+      id 6
+      label "N"
+      graphics [
+         x 862
+         y 538
+      ]
+   ]
+   node [
+      id 7
+      label "N"
+      graphics [
+         x 654
+         y 648
+      ]
+   ]
+   node [
+      id 8
+      label "N"
+      graphics [
+         x 420
+         y 688
+      ]
+   ]
+   node [
+      id 9
+      label "N"
+      graphics [
+         x 436
+         y 859
+      ]
+   ]
+   node [
+      id 10
+      label "N"
+      graphics [
+         x 654
+         y 823
+      ]
+   ]
+   node [
+      id 11
+      label "N"
+      graphics [
+         x 847
+         y 714
+      ]
+   ]
+   edge [
+      source 0
+      target 1
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 2
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 3
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 4
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 4
+      target 5
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 4
+      target 6
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 4
+      target 7
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 4
+      target 8
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 8
+      target 9
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 7
+      target 10
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 6
+      target 11
+      label ""
+      weight 1.0
+   ]
+]
+</file>
+
+<file path="test_Graph.gml">
+graph [
+   comment "Generated by ViSiDiA" 
+   directed 0
+   node [
+      id 0
+      label "N"
+      graphics [
+         x 286
+         y 96
+      ]
+   ]
+   node [
+      id 1
+      label "N"
+      graphics [
+         x 526
+         y 139
+      ]
+   ]
+   node [
+      id 2
+      label "N"
+      graphics [
+         x 705
+         y 365
+      ]
+   ]
+   node [
+      id 3
+      label "N"
+      graphics [
+         x 441
+         y 480
+      ]
+   ]
+   node [
+      id 4
+      label "F"
+      graphics [
+         x 305
+         y 340
+      ]
+   ]
+   edge [
+      source 0
+      target 1
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 2
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 2
+      target 3
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 3
+      target 4
+      label ""
+      weight 1.0
+   ]
+]
+</file>
+
+<file path="tp2025_graph.gml">
+graph [
+   comment "Generated by ViSiDiA" 
+   directed 0
+   node [
+      id 0
+      label "T"
+      graphics [
+         x 378
+         y 150
+      ]
+   ]
+   node [
+      id 1
+      label "F"
+      graphics [
+         x 627
+         y 156
+      ]
+   ]
+   node [
+      id 2
+      label "T"
+      graphics [
+         x 948
+         y 158
+      ]
+   ]
+   node [
+      id 3
+      label "F"
+      graphics [
+         x 905
+         y 409
+      ]
+   ]
+   node [
+      id 4
+      label "T"
+      graphics [
+         x 608
+         y 399
+      ]
+   ]
+   node [
+      id 6
+      label "T"
+      graphics [
+         x 366
+         y 402
+      ]
+   ]
+   edge [
+      source 0
+      target 1
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 2
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 2
+      target 3
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 3
+      target 4
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 4
+      target 1
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 1
+      target 6
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 6
+      target 0
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 6
+      target 8
+      label ""
+      weight 1.0
+   ]
+   edge [
+      source 6
+      target 4
+      label ""
+      weight 1.0
+   ]
+]
+</file>
+
+<file path="tp3/LeaderElection.java">
+package tp3;
+
+import visidia.simulation.SimulationConstants;
+import visidia.simulation.process.algorithm.LC0_Algorithm;
+
+import java.util.Arrays;
+
+
+
+public class LeaderElection extends LC0_Algorithm {
+
+
+    /*
+    * Règles de réecriture pour l'élection d'un leader :
+    * R1: N(1) --- N(x)  ----> F(0) --- N(x-1)   avec x>1
+    * R2: N(1) --- N(1)  ----> E(0) --- F(0)
+    *
+    * */
+
+    private final String NEIGHBORS_KEY = "neighbors";
+    private final String LABEL_KEY = "label";
+    private String[] neighborsList;
+
+
+    @Override
+    public Object clone() {
+        return new LeaderElection();
+    }
+
+    @Override
+    public String getDescription() {
+        return "Election d'un Leader";
+    }
+
+    @Override
+    protected void beforeStart() {
+        this.setLocalProperty(LABEL_KEY, vertex.getLabel());
+        // Cette proprieté permet de compter le nombre de voisins d'un noeud, et mettre à jour ce nombre après
+        // l'élagage.
+        this.setLocalProperty(NEIGHBORS_KEY, vertex.getDegree());
+        this.neighborsList = new String[vertex.getDegree()];
+        Arrays.fill(this.neighborsList, "N");
+    }
+
+
+    @Override
+    protected void onStarCenter() {
+        this.neighborsList[neighborDoor] =  this.getNeighborProperty("label").toString();
+        int neighborDegree = (int) this.getNeighborProperty(NEIGHBORS_KEY);
+        int currentDegree = (int) this.getLocalProperty(NEIGHBORS_KEY);
+        if(currentDegree == 1 && neighborDegree >1) {
+            this.setLocalProperty(LABEL_KEY, "F");
+            this.setNeighborProperty(NEIGHBORS_KEY, neighborDegree -1);
+            this.setLocalProperty(NEIGHBORS_KEY, 0);
+        }
+
+        else if (currentDegree == 1 && neighborDegree == 1) {
+            this.setLocalProperty(LABEL_KEY, "E");
+            this.setNeighborProperty(LABEL_KEY, "F");
+            this.setLocalProperty(NEIGHBORS_KEY, 0);
+            this.setNeighborProperty(NEIGHBORS_KEY, 0);
+        }
+        putProperty("affichage", this.displayNeighborStateList(), SimulationConstants.PropertyStatus.DISPLAYED);
+    }
+
+
+    private String displayNeighborStateList(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(vertex.getLabel());
+        sb.append("(");
+        int count = 0;
+        for (String j : neighborsList) {
+            if(j.equals("N")){
+                count++;
+            }
+        }
+        sb.append(count).append(")");
+        return sb.toString();
+    }
+}
+</file>
+
+<file path=".gitignore">
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+replay_pid*
+
+out
+</file>
+
+</files>

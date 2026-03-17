@@ -3,11 +3,11 @@ package tp6;
 import visidia.simulation.process.algorithm.SensorSyncAlgorithm;
 import visidia.simulation.process.messages.StringMessage;
 
-public class Voisin extends SensorSyncAlgorithm {
+public class SyncNeighbor extends SensorSyncAlgorithm {
 
     @Override
     public Object clone() {
-        return new Voisin();
+        return new SyncNeighbor();
     }
 
     @Override
@@ -17,7 +17,6 @@ public class Voisin extends SensorSyncAlgorithm {
         for (int i =0; i<= 10; i++){
             if(getArity() != 0){
                 this.sendAll(new StringMessage("Hello-WSN"));
-
                 if(isIncomingDoor(0)) {
                     setLocalProperty("label", "A");
                 }
@@ -26,7 +25,6 @@ public class Voisin extends SensorSyncAlgorithm {
                 setLocalProperty("label", "Z");
             }
             move(this.getId());
-
             try {
                 Thread.sleep(600);
             } catch (Exception e) {

@@ -5,11 +5,11 @@ import visidia.simulation.process.edgestate.MarkedState;
 
 import java.util.ArrayList;
 
-public class RecoverTreeLC2 extends LC2_Algorithm {
+public class SpanningTreeLC2 extends LC2_Algorithm {
 
     @Override
     public Object clone() {
-        return new RecoverTreeLC2();
+        return new SpanningTreeLC2();
     }
 
     @Override

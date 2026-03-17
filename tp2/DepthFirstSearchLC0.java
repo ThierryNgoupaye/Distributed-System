@@ -6,7 +6,7 @@ import visidia.simulation.process.edgestate.MarkedState;
 
 import java.util.Arrays;
 
-public class RecoverTree extends LC0_Algorithm {
+public class DepthFirstSearchLC0 extends LC0_Algorithm {
 
     private int fatherDoor;
     private String[] neighbors_state;
@@ -16,7 +16,7 @@ public class RecoverTree extends LC0_Algorithm {
 
     @Override
     public Object clone() {
-        return new RecoverTree();
+        return new DepthFirstSearchLC0();
     }
 
     @Override

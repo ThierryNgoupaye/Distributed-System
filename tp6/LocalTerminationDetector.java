@@ -6,7 +6,7 @@ import visidia.simulation.SimulationConstants;
 import visidia.simulation.process.algorithm.LC1_Algorithm;
 import visidia.simulation.process.edgestate.MarkedState;
 
-public class Terminaison extends LC1_Algorithm{
+public class LocalTerminationDetector extends LC1_Algorithm{
 
 
     @Override
@@ -61,7 +61,7 @@ public class Terminaison extends LC1_Algorithm{
 
     @Override
     public Object clone() {
-        return new Terminaison();
+        return new LocalTerminationDetector();
     }
 
 
